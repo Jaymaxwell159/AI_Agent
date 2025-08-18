@@ -1,4 +1,4 @@
-from functions.get_files_info import get_file_content
+from functions.get_files_info import write_file
 
 def print_result(title, result):
     print(title)
@@ -6,18 +6,14 @@ def print_result(title, result):
     print()
 
 if __name__ == "__main__":
-    # Test 1: main.py in calculator
-    result1 = get_file_content("calculator", "main.py")
-    print_result("Result for 'main.py':", result1)
+    # Test 1: Write to lorem.txt in calculator
+    result1 = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+    print_result("Result for 'lorem.txt':", result1)
 
-    # Test 2: pkg/calculator.py in calculator
-    result2 = get_file_content("calculator", "pkg/calculator.py")
-    print_result("Result for 'pkg/calculator.py':", result2)
+    # Test 2: Write to pkg/morelorem.txt in calculator
+    result2 = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+    print_result("Result for 'pkg/morelorem.txt':", result2)
 
-    # Test 3: /bin/cat (should return error)
-    result3 = get_file_content("calculator", "/bin/cat")
-    print_result("Result for '/bin/cat':", result3)
-
-    # Test 4: pkg/does_not_exist.py (should return error)
-    result4 = get_file_content("calculator", "pkg/does_not_exist.py")
-    print_result("Result for 'pkg/does_not_exist.py':", result4)
+    # Test 3: Write to /tmp/temp.txt (should not be allowed)
+    result3 = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
+    print_result("Result for '/tmp/temp.txt':", result3)
