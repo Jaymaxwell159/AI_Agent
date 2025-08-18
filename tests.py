@@ -1,4 +1,4 @@
-from functions.get_files_info import write_file
+from functions.get_files_info import run_python_file
 
 def print_result(title, result):
     print(title)
@@ -6,14 +6,22 @@ def print_result(title, result):
     print()
 
 if __name__ == "__main__":
-    # Test 1: Write to lorem.txt in calculator
-    result1 = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
-    print_result("Result for 'lorem.txt':", result1)
+    # Test 1: Run main.py (should print usage instructions)
+    result1 = run_python_file("calculator", "main.py")
+    print_result("Result for 'main.py':", result1)
 
-    # Test 2: Write to pkg/morelorem.txt in calculator
-    result2 = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
-    print_result("Result for 'pkg/morelorem.txt':", result2)
+    # Test 2: Run main.py with argument "3 + 5"
+    result2 = run_python_file("calculator", "main.py", ["3 + 5"])
+    print_result("Result for 'main.py' with '3 + 5':", result2)
 
-    # Test 3: Write to /tmp/temp.txt (should not be allowed)
-    result3 = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
-    print_result("Result for '/tmp/temp.txt':", result3)
+    # Test 3: Run tests.py
+    result3 = run_python_file("calculator", "tests.py")
+    print_result("Result for 'tests.py':", result3)
+
+    # Test 4: Run ../main.py (should return error)
+    result4 = run_python_file("calculator", "../main.py")
+    print_result("Result for '../main.py':", result4)
+
+    # Test 5: Run nonexistent.py (should return error)
+    result5 = run_python_file("calculator", "nonexistent.py")
+    print_result("Result for 'nonexistent.py':", result5)
