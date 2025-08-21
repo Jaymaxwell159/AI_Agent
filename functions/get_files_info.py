@@ -1,5 +1,6 @@
 import subprocess
 import os
+import types
 from config import MAX_FILE_CHARACTERS
 
 def get_files_info(working_directory, directory="."):
@@ -91,3 +92,18 @@ def run_python_file(working_directory, file_path, args=[]):
         return output_str
     except Exception as e:
         return f"Error: executing Python file: {e}"
+    
+schema_get_files_info = {
+    "name": "get_files_info",
+    "description": "Lists files in the specified directory along with their sizes, constrained to the working directory.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "directory": {
+                "type": "string",
+                "description": "The directory to list files from, relative to the working directory. If not provided, lists files in the working directory itself.",
+            },
+        },
+    },
+}
+
