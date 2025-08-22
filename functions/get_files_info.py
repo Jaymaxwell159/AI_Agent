@@ -107,3 +107,55 @@ schema_get_files_info = {
     },
 }
 
+schema_get_files_content = {
+    "name": "get_file_content",
+    "description": "Retrieves the content of a file, constrained to the working directory.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "file_path": {
+                "type": "string",
+                "description": "The path to the file to read, relative to the working directory.",
+            },
+        },
+    },  
+}    
+
+schema_run_python_file = {
+    "name": "run_python_file",  
+    "description": "Executes a Python file, constrained to the working directory.",
+    "parameters": { 
+        "type": "object",
+        "properties": {
+            "file_path": {
+                "type": "string",
+                "description": "The path to the Python file to execute, relative to the working directory.",
+            },
+            "args": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "Optional arguments to pass to the Python script."
+            }
+        },
+    },
+}
+
+schema_write_file = {
+    "name": "write_file",   
+    "description": "Writes content to a file, constrained to the working directory.",
+    "parameters": { 
+        "type": "object",
+        "properties": {
+            "file_path": {
+                "type": "string",
+                "description": "The path to the file to write, relative to the working directory.",
+            },
+            "content": {
+                "type": "string",
+                "description": "The content to write to the file.",
+            },
+        },
+    },
+}

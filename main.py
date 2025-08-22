@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 from config import system_promt  # Make sure to import your system prompt
-from functions.get_files_info import schema_get_files_info
+import functions.get_files_info
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -13,7 +13,10 @@ client = genai.Client(api_key=api_key)
 
 available_functions = types.Tool(
     function_declarations=[
-        schema_get_files_info,
+        functions.get_files_info.schema_get_files_info,
+        functions.get_files_info.schema_get_files_content,
+        functions.get_files_info.schema_write_file,
+        functions.get_files_info.schema_run_python_file
     ]
 )
 
@@ -23,6 +26,9 @@ You are a helpful AI coding agent.
 When a user asks a question or makes a request, make a function call plan. You can perform the following operations:
 
 - List files and directories
+- Read file contents
+- Execute Python files with optional arguments
+- Write or overwrite files
 
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
 """
@@ -51,7 +57,7 @@ def main():
     res = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=messages,
-        config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_promt),
+        config=types.GenerateContentConfig(tools=[available_functions], system_instruction=system_prompt),
     )
     
     # Check for function calls
