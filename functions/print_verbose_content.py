@@ -9,5 +9,4 @@ def print_verbose_content(message, verbose=False, verbose_message=None):
     """
     if verbose:
         print(verbose_message if verbose_message is not None else message)
-    else:
-        print(message)
+    # In non-verbose mode, do nothing

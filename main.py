@@ -56,25 +56,60 @@ def main():
         types.Content(role="user", parts=[types.Part(text=prompt)]),
     ]
 
-    res = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt
-        ),
-    )
-    
-    # Check for function calls
-    if hasattr(res, "function_calls") and res.function_calls:
-        for function_call_part in res.function_calls:
-            print_verbose_content(
-                f" - Calling function: {function_call_part.name}",
-                verbose,
-                f"Calling function: {function_call_part.name}({function_call_part.args})",
+    for _ in range(20):  # Limit to 20 iterations to avoid infinite loops
+        try:
+            res = client.models.generate_content(
+                model="gemini-2.0-flash-001",
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions], system_instruction=system_prompt
+                ),
             )
-            function_responses = call_function(function_call_part, verbose=verbose)
-    else:
-        print(res.text)
+
+            # First, handle function calls if they exist
+            if hasattr(res, "function_calls") and res.function_calls:
+                for function_call_part in res.function_calls:
+                    # Execute the function
+                    # Print the function being called
+                    print(f" - Calling function: {function_call_part.name}")
+                    response_content = call_function(
+                        function_call_part, verbose=verbose
+                    )
+                    print_verbose_content(
+                        "",
+                        verbose,
+                        f"Response part: {response_content.parts[0]}\n",
+                    )
+                    # Append function response as user message
+                    response_text = str(response_content.parts[0])
+                    messages.append(types.Content(
+                        role="user",
+                        parts=[types.Part(text=response_text)]
+                    ))
+                # After function calls, we need to continue the loop to let the model process the results
+                continue
+
+            # Then handle candidates (model's responses)
+            if hasattr(res, "candidates"):
+                for candidate in res.candidates:
+                    if hasattr(candidate, "content") and candidate.content:
+                        print_verbose_content(
+                            "", verbose, f"Content: {candidate.content}\n"
+                        )
+                        candidate_text = res.text if res.text else str(candidate.content)
+                        messages.append(types.Content(
+                            role="model",
+                            parts=[types.Part(text=candidate_text)]
+                        ))
+
+            # Check if we have a final response
+            if res.text:
+                print("\nFinal response:")
+                print(res.text)
+                break
+        except Exception as e:
+            print(f"Error during generation: {e}")
+            break
 
     if verbose:
         promt_token_count = res.usage_metadata.prompt_token_count
