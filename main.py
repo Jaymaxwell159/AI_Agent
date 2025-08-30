@@ -3,9 +3,10 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
-from config import system_promt  # Make sure to import your system prompt
+from config import system_prompt  # Make sure to import your system prompt
 import functions.get_files_info
 from functions.get_files_info import call_function
+from functions.print_verbose_content import print_verbose_content
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
