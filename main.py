@@ -5,6 +5,7 @@ from google import genai
 from google.genai import types
 from config import system_promt  # Make sure to import your system prompt
 import functions.get_files_info
+from functions.get_files_info import call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -32,6 +33,7 @@ When a user asks a question or makes a request, make a function call plan. You c
 
 All paths you provide should be relative to the working directory. You do not need to specify the working directory in your function calls as it is automatically injected for security reasons.
 """
+
 
 def main():
     print("Hello from ai-agent!")
@@ -63,7 +65,11 @@ def main():
     # Check for function calls
     if hasattr(res, "function_calls") and res.function_calls:
         for function_call_part in res.function_calls:
-            print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            if verbose:
+                print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            else:
+                print(f" - Calling function: {function_call_part.name}")
+            response_content = call_function(function_call_part, verbose=verbose)
     else:
         print(res.text)
     

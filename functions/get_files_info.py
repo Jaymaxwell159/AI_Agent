@@ -1,6 +1,6 @@
 import subprocess
 import os
-import types
+from google.genai import types
 from config import MAX_FILE_CHARACTERS
 
 def get_files_info(working_directory, directory="."):
@@ -93,6 +93,8 @@ def run_python_file(working_directory, file_path, args=[]):
     except Exception as e:
         return f"Error: executing Python file: {e}"
     
+
+
 schema_get_files_info = {
     "name": "get_files_info",
     "description": "Lists files in the specified directory along with their sizes, constrained to the working directory.",
@@ -159,3 +161,45 @@ schema_write_file = {
         },
     },
 }
+
+def call_function(function_call_part, verbose=False):
+    function_name = function_call_part.name
+    function_args = dict(function_call_part.args)
+    function_args["working_directory"] = "./calculator"
+    func_map = {
+        "get_files_info": get_files_info,
+        "get_file_content": get_file_content,
+        "write_file": write_file,
+        "run_python_file": run_python_file,
+    }
+    func = func_map.get(function_name)
+    if func:
+        function_result = func(**function_args)
+        # Create a Content object representing the tool's response, using Part.from_function_response to format the function result.
+        response_content = types.Content(
+            role="tool",
+            parts=[
+                types.Part.from_function_response(
+                    name=function_name,
+                    response={"result": function_result},
+                )
+            ],
+        )
+    else:
+        # Create a Content object for error handling when the function name is unknown.
+        response_content = types.Content(
+            role="tool",
+            parts=[
+                types.Part.from_function_response(
+                    name=function_name,
+                    response={"error": f"Unknown function: {function_name}"},
+                )
+            ],
+        )
+    # Check for function_response in parts
+    part = response_content.parts[0]
+    if not hasattr(part, "function_response") or not hasattr(part.function_response, "response"):
+        raise RuntimeError("Fatal: No function_response.response found in Content part.")
+    if verbose and "result" in part.function_response.response:
+        print(f"Function call result: {part.function_response.response['result']}")
+    return response_content
